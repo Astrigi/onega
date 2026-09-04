@@ -8,7 +8,7 @@ from app.db.base import Base
 from app.modules.users.models import User, Role, Permission
 from app.modules.users.session import Session
 from app.modules.plots.models import Street, Plot
-from app.modules.members.models import Member
+from app.modules.members.models import Member, MemberPlot
 
 config = context.config
 

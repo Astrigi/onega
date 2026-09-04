@@ -1,7 +1,7 @@
 from datetime import date, datetime
 
-from sqlalchemy import Date, DateTime, String, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import Date, DateTime, ForeignKey, Numeric, String, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 
@@ -59,3 +59,28 @@ class Member(Base):
         onupdate=func.now(),
         nullable=False,
     )
+
+
+class MemberPlot(Base):
+    __tablename__ = "member_plots"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    member_id: Mapped[int] = mapped_column(
+        ForeignKey("members.id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+
+    plot_id: Mapped[int] = mapped_column(
+        ForeignKey("plots.id", ondelete="RESTRICT"),
+        nullable=False,
+    )
+
+    ownership_share: Mapped[float] = mapped_column(
+        Numeric(5, 2),
+        nullable=False,
+    )
+
+    member: Mapped["Member"] = relationship()
+
+    plot: Mapped["Plot"] = relationship()
