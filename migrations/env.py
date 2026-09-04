@@ -7,7 +7,7 @@ from app.core.config import settings
 from app.db.base import Base
 from app.modules.users.models import User, Role, Permission
 from app.modules.users.session import Session
-
+from app.modules.plots.models import Street, Plot
 
 config = context.config
 
