@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Кабинет — СНТ ОНЕГА</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, sans-serif;
+            background: #f5f6f7;
+            color: #222;
+        }
+
+        main {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header,
+        section {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        .user {
+            color: #666;
+        }
+
+        .item {
+            padding: 14px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .item:last-child {
+            border-bottom: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+<main>
+
+    <header>
+        <h1>СНТ ОНЕГА</h1>
+        <div class="user">
+            Пользователь: <strong>{{ user.username }}</strong>
+        </div>
+    </header>
+
+    <section>
+        <h2>Личный кабинет</h2>
+
+        <div class="item">🏡 Мои участки</div>
+        <div class="item">💰 Начисления и платежи</div>
+        <div class="item">📝 Мои заявки</div>
+        <div class="item">📄 Документы</div>
+        <div class="item">📅 Собрания и голосования</div>
+        <div class="item">📢 Объявления</div>
+    </section>
+
+<form method="post" action="/logout">
+    <button type="submit">Выйти</button>
+</form>
+
+</main>
+
+</body>
+</html>

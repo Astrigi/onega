@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход — СНТ ОНЕГА</title>
+</head>
+<body>
+    <main>
+        <h1>СНТ ОНЕГА</h1>
+
+        <form method="post" action="/login">
+            <label>
+                Логин
+                <input
+                    type="text"
+                    name="username"
+                    autocomplete="username"
+                    required
+                >
+            </label>
+
+            <label>
+                Пароль
+                <input
+                    type="password"
+                    name="password"
+                    autocomplete="current-password"
+                    required
+                >
+            </label>
+
+            <button type="submit">Войти</button>
+        </form>
+    </main>
+</body>
+</html>
