@@ -1,20 +1,24 @@
-from fastapi import FastAPI, Request, Form, Depends, Cookie, HTTPException
+from fastapi import FastAPI, Request, Form, Depends, Cookie
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
-from sqlalchemy.orm import selectinload
 
 from app.db.session import SessionLocal
 from app.core.security import verify_password
-from app.core.permissions import has_permission
-from app.modules.users.models import User, Role
-from app.modules.users.service import create_session, get_session, revoke_session
+from app.core.dependencies import require_permission
+from app.modules.users.models import User
+from app.modules.users.service import create_session, revoke_session
+from app.modules.members.router import router as members_router
+from app.modules.plots.router import router as plots_router
 
 
 app = FastAPI(
     title="СНТ ОНЕГА",
     version="0.1.0",
 )
+
+app.include_router(members_router)
+app.include_router(plots_router)
 
 templates = Jinja2Templates(directory="app/templates")
 
@@ -109,59 +113,6 @@ def logout(
 
     finally:
         db.close()
-
-
-def current_user(
-    session_token: str | None = Cookie(default=None),
-):
-    if not session_token:
-        return None
-
-    db = SessionLocal()
-
-    try:
-        session = get_session(db, session_token)
-
-        if session is None:
-            return None
-
-        user = db.scalar(
-            select(User)
-            .options(
-                selectinload(User.roles)
-                .selectinload(Role.permissions)
-            )
-            .where(User.id == session.user_id)
-        )
-
-        if user is None or not user.is_active:
-            return None
-
-        return user
-
-    finally:
-        db.close()
-
-
-def require_permission(permission_code: str):
-    def dependency(
-        user: User | None = Depends(current_user),
-    ):
-        if user is None:
-            raise HTTPException(
-                status_code=303,
-                headers={"Location": "/login"},
-            )
-
-        if not has_permission(user, permission_code):
-            raise HTTPException(
-                status_code=403,
-                detail="Доступ запрещён",
-            )
-
-        return user
-
-    return dependency
 
 
 @app.get("/dashboard", response_class=HTMLResponse)

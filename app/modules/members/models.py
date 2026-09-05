@@ -1,9 +1,13 @@
 from datetime import date, datetime
+from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import Date, DateTime, ForeignKey, Numeric, String, func
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Numeric, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+
+if TYPE_CHECKING:
+    from app.modules.users.models import User
 
 
 class Member(Base):
@@ -60,6 +64,17 @@ class Member(Base):
         nullable=False,
     )
 
+    # Обратная сторона связи User -> Member (протокол 002).
+    # uselist=False: у одного Member максимум один связанный User.
+    user: Mapped[Optional["User"]] = relationship(
+        back_populates="member",
+        uselist=False,
+    )
+
+    member_plots: Mapped[list["MemberPlot"]] = relationship(
+        back_populates="member",
+    )
+
 
 class MemberPlot(Base):
     __tablename__ = "member_plots"
@@ -81,6 +96,34 @@ class MemberPlot(Base):
         nullable=False,
     )
 
-    member: Mapped["Member"] = relationship()
+    # --- Голосование (протокол 004 + решение по совладению) ---
+    # Правило: 1 участок = 1 голос, голосует ровно один человек.
+    # - Если владелец у участка один — он автоматически представитель
+    #   (выставляется в add_member_plot()).
+    # - Если владельцев несколько — представителя назначает ADMIN/BOARD
+    #   (set_voting_representative), либо он определяется автоматически,
+    #   если все совладельцы, кроме одного, отказались от голоса
+    #   (waive_voting_right).
+    # На уровне БД гарантируется миграцией: не более одного
+    # is_voting_representative=true на один plot_id (частичный уникальный
+    # индекс), см. migrations/versions/*_add_voting_fields_to_member_plots.py
+    is_voting_representative: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+    )
 
-    plot: Mapped["Plot"] = relationship()
+    # Совладелец добровольно отказался от права голоса по этому участку.
+    voting_waived: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+    )
+
+    member: Mapped["Member"] = relationship(
+        back_populates="member_plots",
+    )
+
+    plot: Mapped["Plot"] = relationship(
+        back_populates="member_plots",
+    )

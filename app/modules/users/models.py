@@ -1,9 +1,13 @@
 from datetime import datetime
+from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy import Boolean, DateTime, ForeignKey, String, Table, Column, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+
+if TYPE_CHECKING:
+    from app.modules.members.models import Member
 
 
 user_roles = Table(
@@ -61,6 +65,18 @@ class User(Base):
         nullable=False,
     )
 
+    # Связь с Member (протокол 002): регистрация пользователя сама по себе
+    # не даёт прав собственности. Связь устанавливается ADMIN/BOARD вручную
+    # через POST /members/{member_id}/link-user.
+    # Nullable + unique: один User может быть привязан максимум к одному
+    # Member, и наоборот (1:1). Пользователь без привязки (обычный/гостевой
+    # аккаунт, подрядчик и т.п.) — member_id остаётся NULL.
+    member_id: Mapped[int | None] = mapped_column(
+        ForeignKey("members.id", ondelete="SET NULL"),
+        unique=True,
+        nullable=True,
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
@@ -77,6 +93,10 @@ class User(Base):
     roles: Mapped[list["Role"]] = relationship(
         secondary=user_roles,
         back_populates="users",
+    )
+
+    member: Mapped[Optional["Member"]] = relationship(
+        back_populates="user",
     )
 
 

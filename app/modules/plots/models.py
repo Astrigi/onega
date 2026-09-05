@@ -1,9 +1,13 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, DateTime, ForeignKey, String, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+
+if TYPE_CHECKING:
+    from app.modules.members.models import MemberPlot
 
 
 class Street(Base):
@@ -89,4 +93,8 @@ class Plot(Base):
 
     street: Mapped["Street"] = relationship(
         back_populates="plots",
+    )
+
+    member_plots: Mapped[list["MemberPlot"]] = relationship(
+        back_populates="plot",
     )
